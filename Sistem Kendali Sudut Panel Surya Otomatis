@@ -1,0 +1,58 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameter waktu
+t = np.linspace(0, 20, 1000)
+dt = t[1] - t[0]
+
+# Simulasi intensitas cahaya sensor kiri & kanan (misalnya cahaya bergerak dari kanan ke kiri)
+sensor_kiri = 0.5 + 0.5 * np.sin(0.3 * t)
+sensor_kanan = 0.5 + 0.5 * np.cos(0.3 * t)
+
+# PID parameters
+Kp = 2.0
+Ki = 0.5
+Kd = 1.0
+
+# Inisialisasi
+error = sensor_kiri - sensor_kanan
+integral = 0
+previous_error = 0
+theta = []  # Sudut panel
+correction = []
+
+# Simulasi kontrol
+angle = 0
+for i in range(len(t)):
+    e = error[i]
+    integral += e * dt
+    derivative = (e - previous_error) / dt
+
+    u = Kp * e + Ki * integral + Kd * derivative
+    angle += u * dt  # Update sudut panel
+
+    theta.append(angle)
+    correction.append(u)
+    previous_error = e
+
+# Grafik
+plt.figure(figsize=(12, 6))
+
+plt.subplot(2, 1, 1)
+plt.plot(t, error, label='Error (Δ Intensity)')
+plt.title('Error antara Sensor Kiri dan Kanan')
+plt.xlabel('Waktu (s)')
+plt.ylabel('Error')
+plt.grid(True)
+plt.legend()
+
+plt.subplot(2, 1, 2)
+plt.plot(t, theta, label='Sudut Panel (θ)', color='orange')
+plt.title('Koreksi Sudut Panel oleh PID')
+plt.xlabel('Waktu (s)')
+plt.ylabel('Sudut (derajat)')
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.show()
